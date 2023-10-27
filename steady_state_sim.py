@@ -8,7 +8,9 @@ def create_parser():
     parser.add_argument('GPU', type=int, nargs=1, help="Number for GPU to use")
     parser.add_argument("--no_smcs", action='store_true', help="Add flag if want no loop-extruders, ie just replication")
     parser.add_argument('--topological', action='store_true', help="Add flag if want topological loop-extruders")
+    parser.add_argument('--forks_bound', action='store_true', help="Add flag if replication forks should be tied. Only without LEs.")
     parser.add_argument('--num_tethers',type=int, choices=[0,1,2], default=0, help="0,1 or 2, sets how many oris are tethered")
+    parser.add_argument('--frac_travelled', default=0.5,type=float, help="Sets lifetime as fraction*monomers/speed. Default 0.5; ori to ter")
     parser.add_argument('-M', '--num_condensins',type=int, default=40, help="Number of loop-extruders on single chromosome")
     parser.add_argument('--top_monomer',type=int, default=0, help="The monomer that will be at the pole for an initial unsegregated configuration")
     parser.add_argument('-c', '--col_rate', default=0.03,type=float, help="Collision rate that sets drag force")
@@ -61,6 +63,8 @@ def main():
         else:
             print("Running simulations with one tether and no loop-extruders")
             save_folder = "Steady_state_No_smcs_one_tether"
+        if args.forks_bound:
+            save_folder=save_folder+"_tied_forks"
     elif args.topological:
         import loop_extrusion_replication.steady_state_simulations.topological as sim
         if args.num_tethers==0:
@@ -72,6 +76,8 @@ def main():
         else:
             save_folder = "Steady_state_Topological_smcs_one_tether"
             print("Running simulations with one tether and topological loop-extruders")
+        if args.forks_bound:
+            print("Warning: no forks tied with loop-extruders!")
 
     else:#nontopological
         import loop_extrusion_replication.steady_state_simulations.nontopological as sim
@@ -84,6 +90,8 @@ def main():
         else:
             save_folder= "Steady_state_Nontopological_smcs_one_tether"
             print("Running simulations with one tether and nontopological loop-extruders")
+        if args.forks_bound:
+            print("Warning: no forks tied with loop-extruders!")
             
     #Set rest of parameters
     
@@ -120,7 +128,7 @@ def main():
         terSiteStrength = 0.05*base_stochasticity # rate of dissociation (1/(simulation time step))
         parSval=N_1D
         parSstrengths=[parSval/len(parSsites)]*len(parSsites)
-        life_time = N_1D/2/base_stochasticity # time in (simulation time) step units #C crescentus: level off around 600 kb
+        life_time = args.frac_travelled*N_1D/base_stochasticity # time in (simulation time) step units #C crescentus: level off around 600 kb
         translocator_initialization_steps = 100000 # for SMC translocator
 
     # Simulations give samples_per_trajectory timepoints
@@ -156,7 +164,7 @@ def main():
             smcBondDist, smcBondWiggleDist, out_dir, saveEveryConfigs, \
             savedSamples, restartConfigurationEvery,GPU_choice=GPU,\
             F_z=args.pull_force,col_rate=args.col_rate, trunc=args.trunc, num_tethers=args.num_tethers,\
-            top_monomer=args.top_monomer, start_segregated=args.segregated)
+            top_monomer=args.top_monomer, start_segregated=args.segregated, forks_bound=args.forks_bound)
 
     else:
         print("Start sims with smcs")

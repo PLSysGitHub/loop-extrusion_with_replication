@@ -9,14 +9,16 @@ def create_parser():
     parser.add_argument("--no_smcs", action='store_true', help="Add flag if want no loop-extruders, ie just replication")
     parser.add_argument('--topological', action='store_true', help="Add flag if want topological loop-extruders")
     parser.add_argument('--num_tethers',type=int, choices=[0,1,2], default=0, help="0,1 or 2, sets how many oris are tethered")
+    parser.add_argument('--frac_travelled', default=0.5,type=float, help="Sets lifetime as fraction*monomers/speed. Default 0.5; ori to ter")
     parser.add_argument('-M', '--num_condensins',type=int, default=40, help="Number of loop-extruders on single chromosome")
     parser.add_argument('-c', '--col_rate', default=0.03,type=float, help="Collision rate that sets drag force")
     parser.add_argument('-t', '--trunc', default=1.5,type=float, help="trunc parameter for strength of excluded volume")
     parser.add_argument('-f', '--fall_rate_fork', default=0.0,type=float, help="The off-loading rate of condensins at the replication fork")
     parser.add_argument('-p', '--pull-force', default=2.0,type=float, help="The force for the cylindrical confinement and ori-tether (if present)")
     parser.add_argument('-r', '--relative_fork_rate', default=1.488,type=float, help="The speed of a replication fork compared to a loop-extruder")
-    parser.add_argument('-n', '--num_trajectories', default=100,type=int, help="The number of loop-extrusion trajectories to simulate")
+    parser.add_argument('-n', '--num_trajectories', default=300,type=int, help="The number of loop-extrusion trajectories to simulate")
     parser.add_argument('--top_monomer', default=0, type=int, help="The index of the monomer that is initialised at a pole, and possibly tethered")
+    parser.add_argument("--tie_forks", action='store_true', help="Add flag if you want replication forks to be tied. Only works without smcs")
     return parser
  
 def get_kb_from_theory(num_extruders):
@@ -56,6 +58,9 @@ def main():
             print("Running simulations with ori-tether and no loop-extruders")
         else:
             save_folder = "No_smcs_one_tether"
+        if args.tie_forks:
+            save_folder=save_folder+"_tied_forks"
+
     elif args.topological:
         import loop_extrusion_replication.replicating_simulations.topological as sim
         if args.num_tethers==0:
@@ -67,6 +72,8 @@ def main():
         else:
             save_folder = "Topological_smcs_one_tether"
             print("Running simulations with one tether and topological loop-extruders")
+        if args.tie_forks:
+            print("Warning: tied forks argument neglected without LE's")
 
     else:#nontopological
         import loop_extrusion_replication.replicating_simulations.nontopological as sim
@@ -79,6 +86,8 @@ def main():
         else:
             save_folder= "Nontopological_smcs_one_tether"
             print("Running simulations with one tether and nontopological loop-extruders")
+        if args.tie_forks:
+            print("Warning: tied forks argument neglected without LE's")
             
     #Set rest of parameters
     
@@ -89,7 +98,7 @@ def main():
     else:
         N_1D = 4040 #as in Brandao et al. 2021, keeping LE density same in 1D
 
-    monomer_size=129#nm, Messelink et.al. 2021
+    monomer_size=129 #129 nm for 10 kb, Messelink et.al. 2021
     monomer_wig=17**0.5/monomer_size/(N/404) #var for distance between 10 kb is 17 nm, divide by beads/10 kb
     smcBondDist = 50/monomer_size #Condensin roughly 50 nm large
     smcBondWiggleDist = 0.2*smcBondDist
@@ -119,7 +128,7 @@ def main():
         parSval=N_1D
         parSstrengths=[parSval/len(parSsites)]*len(parSsites)
 
-    life_time = N_1D/2/base_stochasticity # time in (simulation time) step units     
+    life_time = args.frac_travelled*N_1D/base_stochasticity # time in (simulation time) step units #C crescentus: level off around 600 kb
     translocator_initialization_steps = round(life_time*50) # for SMC translocator
 
     # Simulations give samples_per_trajectory timepoints
@@ -152,7 +161,7 @@ def main():
         sim.run_simulation(monomer_size,monomer_wig, N, N_1D, steps_per_sample, radius, height,z_ori, smcStepsPerBlock, \
             smcBondDist, smcBondWiggleDist, out_dir, saveEveryConfigs, \
             savedSamples, restartConfigurationEvery,GPU_choice=GPU, F_z=args.pull_force,col_rate=args.col_rate,\
-            trunc=args.trunc, fork_rate=fork_rate, top_monomer=args.top_monomer, num_tethers=args.num_tethers)
+            trunc=args.trunc, fork_rate=fork_rate, top_monomer=args.top_monomer, num_tethers=args.num_tethers, tie_forks=args.tie_forks)
     else:
         print("Start sims with smcs")
         sim.run_simulation(monomer_size,monomer_wig,knockOffProb, kOriToTer_kTerToOri_kBypass, parSsites,\

@@ -38,7 +38,7 @@ class simulationBondUpdater(object):
     This class precomputes simulation bonds for faster dynamic allocation. 
     """
 
-    def __init__(self,N,N_1D,monomer_size, smcTransObject, trunc, num_tethers):
+    def __init__(self,N,N_1D,monomer_size, smcTransObject, trunc, num_tethers, tie_forks):
         """
         :param smcTransObject: smc translocator object to work with
         :param N: number of monomers in the polymer
@@ -55,6 +55,7 @@ class simulationBondUpdater(object):
         self.forkpos = []
         self.monomer_size=monomer_size
         self.num_tethers=num_tethers
+        self.tie_forks=tie_forks
 
     def setParams(self, activeParamDict, inactiveParamDict, replicatedParamDict):
         """
@@ -103,6 +104,8 @@ class simulationBondUpdater(object):
             
             replication_bonds=[(i,calc_repl_pos(i,self.N)) for i  in range(fork[0],fork[1]+1)] #tie unreplicated bit to old
 
+            if self.tie_forks:
+                replication_bonds.append((fork[0],fork[1]))
             allBonds.append(replication_bonds)
             forks.append(fork)
 
@@ -224,7 +227,7 @@ def initModel(N = 4000, fork_rate=0.):
 def run_simulation(monomer_size, monomer_wig,N,N_1D,steps_per_sample, radius, height, z_ori, \
         smcStepsPerBlock, smcBondDist, smcBondWiggleDist, save_folder, saveEveryConfigs, \
         savedSamples, restartConfigurationEvery, GPU_choice = 0, F_z=0., col_rate=0.1, \
-        trunc=0.5,fork_rate=0.05, top_monomer=0, num_tethers=2):
+        trunc=0.5,fork_rate=0.05, top_monomer=0, num_tethers=2, tie_forks=False):
     """
     This function initiates the bacterial chromosome. 
 
@@ -328,7 +331,7 @@ def run_simulation(monomer_size, monomer_wig,N,N_1D,steps_per_sample, radius, he
         SMCTran.start_replication() #start stalling at the fork, start moving fork
 
         #Now feed bond generators to BondUpdater 
-        BondUpdater = simulationBondUpdater(N,N_1D,monomer_size,SMCTran, trunc, num_tethers)
+        BondUpdater = simulationBondUpdater(N,N_1D,monomer_size,SMCTran, trunc, num_tethers, tie_forks)
 
         # simulation parameters are defined below 
         a = Simulation(

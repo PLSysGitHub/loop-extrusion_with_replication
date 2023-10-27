@@ -38,7 +38,8 @@ def run_simulation(R,monomer_size,monomer_wig, N,\
         steps_per_sample, radius,\
         smcBondDist, smcBondWiggleDist, save_folder, saveEveryConfigs, \
         savedSamples, restartConfigurationEvery, GPU_choice = 0, F_z=0.,\
-        col_rate=0.1, trunc=0.5, num_tethers=2, start_segregated=False,top_monomer=0):
+        col_rate=0.1, trunc=0.5, num_tethers=2, start_segregated=False,top_monomer=0,\
+        forks_bound=False):
     """
     This function initiates the bacterial chromosome. 
 
@@ -123,12 +124,17 @@ def run_simulation(R,monomer_size,monomer_wig, N,\
         start_data = start_point_unsegregated(top_monomer,R,N,height)
 
     #the bonds that will be used, given that unreplicated bonds need to be two times softer
-    wiggle_array=np.ones(2*N+(N-R))*monomer_wig #polymer bonds plus replication bonds
+    if forks_bound:
+        num_bonds=2*N+(N-R)+1
+    else:
+        num_bonds=2*N+(N-R)
+
+    wiggle_array=np.ones(num_bonds)*monomer_wig #polymer bonds plus replication bonds
     wiggle_array[R//2:N-R//2]*=np.sqrt(2) #unreplicated polymer bonds
     wiggle_array[N+R//2:2*N-R//2]*=np.sqrt(2) #unreplicated polymer bonds on second copy
     wiggle_array[2*N:-1]=smcBondWiggleDist #replication bonds
     
-    length_array=np.ones(2*N+(N-R))
+    length_array=np.ones(num_bonds)
     length_array[2*N:-1]=smcBondDist #replication bonds have this length, mostly for compatibility with dynamic simulations
     
     trunc_array=np.ones(2*N)*np.sqrt(trunc) #excluded volume strength for each monomer
@@ -154,6 +160,10 @@ def run_simulation(R,monomer_size,monomer_wig, N,\
 
         a.set_data(start_data)  # loads polymer.
 
+        all_bonds=[(i,i+N) for i in range(R//2,N-R//2)] #unreplicated monomers
+        if forks_bound:
+            all_bonds.append((R//2, N-R//2))
+
         # -----------Adding forces ---------------
         a.add_force(
             forcekits.polymer_chains(
@@ -178,7 +188,7 @@ def run_simulation(R,monomer_size,monomer_wig, N,\
                     #'trunc':10.0, # this will resolve chain crossings and will not let chain cross anymore
                 },
                 except_bonds=True,
-                extra_bonds=[(i,i+N) for i in range(R//2,N-R//2)] #unreplicated monomers
+                extra_bonds=all_bonds
             )
         )
 
