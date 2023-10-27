@@ -410,7 +410,7 @@ def run_simulation(R,monomer_size,monomer_wig, knockOffProb, kOriToTer_kTerToOri
         SMCTran.steps(translocator_initialization_steps) #this is without stalling at fork
 
         #Now feed bond generators to BondUpdater 
-        BondUpdater = simulationBondUpdater(N,N_1D, SMCTran, trunc, monomer_size)
+        BondUpdater = simulationBondUpdater(N,N_1D, SMCTran, trunc)
 
         # simulation parameters are defined below 
         a = Simulation(
