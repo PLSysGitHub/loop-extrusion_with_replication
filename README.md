@@ -1,6 +1,6 @@
 # Loop-extruders alter bacterial chromosome topology to direct entropic forces for segregation
 
-This repository contains the code used to simulate replicating bacterial chromosomes inside a confinement. The code has been adapted from https://github,com/hbbrandao/bacterialSMCtrajectories. The main changes are the inclusion of replication in both the 1D and 3D simulations, as well as the addition of a growing cylindrical confinement.
+This repository contains the code used to simulate replicating bacterial chromosomes inside a confinement. The code has been adapted from https://github.com/hbbrandao/bacterialSMCtrajectories. The main changes are the inclusion of replication in both the 1D and 3D simulations, as well as the addition of a growing cylindrical confinement.
 
 Analysis of the data was done using the Julia code in the repository: https://github.com/PLSysGitHub/loop-extrusion_with_replication_analysis
 

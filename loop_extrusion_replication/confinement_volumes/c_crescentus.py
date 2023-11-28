@@ -1,4 +1,4 @@
-from polychrom.starting_conformations import grow_cubic
+from polychrom.starting_conformations import grow_cubic, create_random_walk
 import numpy as np
 
 def start_point_unsegregated(top_monomer, R, N, height):
@@ -28,6 +28,12 @@ def start_point_segregated(R,N,height):
     for i in range(R//2):
         start_data[i+N][2]*=-1
         start_data[2*N-1-i][2]*=-1
+
+    return start_data
+
+def start_point_linear_free(N):
+    #for sims without confinement; linear polymer
+    start_data=create_random_walk(1.,N) #unconfined random walk
 
     return start_data
 
