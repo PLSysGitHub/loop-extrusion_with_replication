@@ -12,6 +12,9 @@ Please replace the polychrom/polychrom/forces.py file with the version included 
 
 By default, the code runs using CUDA, which can be installed at https://developer.nvidia.com/cuda-downloads. If you do not have a CUDA-compatible GPU, you can edit the option platform="cuda" to platform="CPU" in the a=simulation(...) call of the simulation you want to run.
 
+## Run times:
+The default steady state simulations with loop-extrusion took a day or two to run on a NVIDIA GeForce RTX 3080 GPU. The default replicating simulations with loop-extrusion took approximately a day. Simulations without loop-extruders are significantly faster, and typically finish in less than a day.
+
 ## References:
 Brandão, H. B., Ren, Z., Karaboja, X., Mirny, L. A., & Wang, X. (2021). DNA-loop extruding SMC complexes can traverse one another in vivo. *Nat. Struct. Mol. Biol.* 
 
