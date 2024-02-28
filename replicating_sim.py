@@ -10,13 +10,14 @@ def create_parser():
     parser.add_argument('--topological', action='store_true', help="Add flag if want topological loop-extruders")
     parser.add_argument('--num_tethers',type=int, choices=[0,1,2], default=0, help="0,1 or 2, sets how many oris are tethered")
     parser.add_argument('--frac_travelled', default=0.5,type=float, help="Sets lifetime as fraction*monomers/speed. Default 0.5; ori to ter")
+    parser.add_argument('--parS_strength', default=4040.,type=float, help="Loading preference at ori. Default leads to 50% chance of ori loading.")
     parser.add_argument('-M', '--num_condensins',type=int, default=40, help="Number of loop-extruders on single chromosome")
     parser.add_argument('-c', '--col_rate', default=0.03,type=float, help="Collision rate that sets drag force")
     parser.add_argument('-t', '--trunc', default=1.5,type=float, help="trunc parameter for strength of excluded volume")
     parser.add_argument('-f', '--fall_rate_fork', default=0.0,type=float, help="The off-loading rate of condensins at the replication fork")
     parser.add_argument('-p', '--pull-force', default=2.0,type=float, help="The force for the cylindrical confinement and ori-tether (if present)")
     parser.add_argument('-r', '--relative_fork_rate', default=1.488,type=float, help="The speed of a replication fork compared to a loop-extruder")
-    parser.add_argument('-n', '--num_trajectories', default=300,type=int, help="The number of loop-extrusion trajectories to simulate")
+    parser.add_argument('-n', '--num_trajectories', default=250,type=int, help="The number of loop-extrusion trajectories to simulate")
     parser.add_argument('--top_monomer', default=0, type=int, help="The index of the monomer that is initialised at a pole, and possibly tethered")
     parser.add_argument("--tie_forks", action='store_true', help="Add flag if you want replication forks to be tied. Only works without smcs")
     return parser
@@ -125,7 +126,7 @@ def main():
         wind = 0 
         terSites = [N_1D*195//405,N_1D*205//405]
         terSiteStrength = 0.05*base_stochasticity # rate of dissociation (1/(simulation time step))
-        parSval=N_1D
+        parSval=args.parS_strength
         parSstrengths=[parSval/len(parSsites)]*len(parSsites)
 
     life_time = args.frac_travelled*N_1D/base_stochasticity # time in (simulation time) step units #C crescentus: level off around 600 kb

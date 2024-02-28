@@ -11,6 +11,7 @@ def create_parser():
     parser.add_argument('--forks_bound', action='store_true', help="Add flag if replication forks should be tied. Only without LEs.")
     parser.add_argument('--num_tethers',type=int, choices=[0,1,2], default=0, help="0,1 or 2, sets how many oris are tethered")
     parser.add_argument('--frac_travelled', default=0.5,type=float, help="Sets lifetime as fraction*monomers/speed. Default 0.5; ori to ter")
+    parser.add_argument('--parS_strength', default=4040.,type=float, help="Loading preference at ori. Default leads to 50% chance of ori loading.")
     parser.add_argument('-M', '--num_condensins',type=int, default=40, help="Number of loop-extruders on single chromosome")
     parser.add_argument('--top_monomer',type=int, default=0, help="The monomer that will be at the pole for an initial unsegregated configuration")
     parser.add_argument('-c', '--col_rate', default=0.03,type=float, help="Collision rate that sets drag force")
@@ -126,7 +127,7 @@ def main():
         wind = 0 
         terSites = [N_1D*195//404,N_1D*205//404]
         terSiteStrength = 0.05*base_stochasticity # rate of dissociation (1/(simulation time step))
-        parSval=N_1D
+        parSval=args.parS_strength
         parSstrengths=[parSval/len(parSsites)]*len(parSsites)
         life_time = args.frac_travelled*N_1D/base_stochasticity # time in (simulation time) step units #C crescentus: level off around 600 kb
         translocator_initialization_steps = 100000 # for SMC translocator
