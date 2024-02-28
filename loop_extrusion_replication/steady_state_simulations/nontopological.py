@@ -236,6 +236,14 @@ def initModel(R,knockOffProb,kOriToTer_kTerToOri_kBypass,parSsites,\
     #Before replication, zero loading on new chromosome
     birthArray[N+R//2:2*N-R//2]=0.
 
+    #off-loading rate at forks
+    if R>0:
+        deathArray[R//2]=stallFork
+        deathArray[N-R//2]=stallFork
+        deathArray[N+R//2]=stallFork
+        deathArray[2*N-R//2]=stallFork
+
+
     # set baseline translocation asymmetry
     stepArrayL[0:terSites[0]] *= (1-wind) #decrease to ori
     stepArrayL[N:N+terSites[0]] *= (1-wind) #decrease to ori
