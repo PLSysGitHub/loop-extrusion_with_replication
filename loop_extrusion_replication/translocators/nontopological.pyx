@@ -80,8 +80,8 @@ cdef class smcForkTranslocator(object):
         self.stallFork=stallFork
         self.kForkMoves=forkMoveRate
 
-        self.emission[self.N:2*self.N]=0. #don't load on unreplicated
-
+        self.emission[self.N+fork_start:2*self.N-fork_start]=0. #don't load on unreplicated
+        
         self.knockOffProb_OriToTer = kkOriToTer_kkTerToOri_kBypass[0]
         self.knockOffProb_TerToOri = kkOriToTer_kkTerToOri_kBypass[1] # rate of facilitated dissociation
         self.kBypass = kkOriToTer_kkTerToOri_kBypass[2]
@@ -129,15 +129,13 @@ cdef class smcForkTranslocator(object):
                 falloff1 = self.falloff[self.SMCs1[i]] #at fork this is higher
             else: 
                 #edited: max, near ter stalling can otherwise decrease falloff
-                falloff1 = max(self.stallFalloff[self.SMCs1[i]],self.falloff[self.SMCs1[i]]
-                        )
+                falloff1 = max(self.stallFalloff[self.SMCs1[i]],self.falloff[self.SMCs1[i]])
 
             if self.stalled2[i] == 0:
                 falloff2 = self.falloff[self.SMCs2[i]]
             else:
                 #edited: max, near ter stalling can otherwise decrease falloff
-                falloff2 = max(self.stallFalloff[self.SMCs2[i]],self.falloff[self.SMCs2[i]]
-                        )
+                falloff2 = max(self.stallFalloff[self.SMCs2[i]],self.falloff[self.SMCs2[i]])
             
             falloff = max(falloff1, falloff2)
             if randnum() < falloff:                 
