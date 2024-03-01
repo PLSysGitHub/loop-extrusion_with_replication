@@ -20,7 +20,7 @@ def create_parser():
     parser.add_argument('-p', '--pull-force', default=2.0,type=float, help="The force for the cylindrical confinement and ori-tether (if present)")
     parser.add_argument('-R', '--replicated_length',type=int, required=True, help="The extent of replication, integer less than N")
     parser.add_argument('--segregated', action='store_true', help="Add flag for a starting conformation that's segregated")
-    parser.add_argument('-n', '--num_trajectories', default=100,type=int, help="The number of loop-extrusion trajectories to simulate")
+    parser.add_argument('-n', '--num_trajectories', default=5,type=int, help="The number of loop-extrusion trajectories to simulate")
     return parser
  
 def get_kb_from_theory(num_extruders):

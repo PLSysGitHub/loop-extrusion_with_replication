@@ -90,7 +90,7 @@ cdef class topologicalSmcForkTranslocator(object):
         self.stallFork=stallFork
         self.kForkMoves=forkMoveRate
 
-        self.emission[self.N:2*self.N]=0. #don't load on unreplicated
+        self.emission[self.N+fork_start:2*self.N-fork_start]=0. #don't load on unreplicated
         
         self.maxss = 100 #lower because need to redraw as polymer is replicated
         self.curss = self.maxss+1
@@ -326,7 +326,7 @@ cdef class topologicalSmcForkTranslocator(object):
             #reset to what they were before fork there
             self.falloff[self.fork1]=self.falloff[self.fork1+self.N]
             if self.fork1>0:
-                self.emission[self.N+self.fork1-1]=self.emission[self.fork1-1] #note -1; otherwise load (fork1-1+N, fork1+N)!
+                self.emission[self.N+self.fork1-1]=self.emission[self.fork1-1] #note -1 for topological case; otherwise load SMC with legs at (fork1-1+N, fork1+N)!
             
             #move fork
             self.fork1+=1
