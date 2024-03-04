@@ -59,7 +59,8 @@ cdef class smcForkTranslocator(object):
         self.n=2*fork_start
 
         self.M = numSmc
-        self.smc_per_chrom=numSmc
+        self.smc_per_chrom=round(self.M*self.N/(self.N+self.n))
+
         self.stallLeft = stallProbLeft
         self.stallRight = stallProbRight
         self.falloff = deathProb
@@ -73,10 +74,11 @@ cdef class smcForkTranslocator(object):
         cumem = cumem / float(cumem[len(cumem)-1])
         self.cumEmission = np.array(cumem, np.double)
 
-        self.SMCs1 = np.zeros((self.M*2), int) #arrays two times larger because final state has 2 times more smcs and monomers
-        self.SMCs2 = np.zeros((self.M*2), int)
-        self.dir1 = -1*np.ones((self.M*2),int)
-        self.dir2= np.ones((self.M*2),int)
+        self.SMCs1 = np.zeros((self.M*2), int) #Extra space for replicating simulations, where LE number doubles
+        self.SMCs2 = np.zeros((self.M*2), int) #extra space not used in steady state simulations
+
+        self.dir1 = -1*np.ones((self.M*2),int) #leg 1 moves from n to n-1. Can change during fork collisions.
+        self.dir2= np.ones((self.M*2),int)      # leg 2 moves from n to n+1
         self.stalled1 = np.zeros(self.M*2, int)
         self.stalled2 = np.zeros(self.M*2, int)
         self.occupied = np.zeros(self.N*2, int)
@@ -84,7 +86,6 @@ cdef class smcForkTranslocator(object):
         self.stallFork=stallFork
         self.kForkMoves=forkMoveRate
 
-        
         self.knockOffProb_OriToTer = kkOriToTer_kkTerToOri_kBypass[0]
         self.knockOffProb_TerToOri = kkOriToTer_kkTerToOri_kBypass[1] # rate of facilitated dissociation
         self.kBypass = kkOriToTer_kkTerToOri_kBypass[2]
@@ -160,6 +161,7 @@ cdef class smcForkTranslocator(object):
         
     cdef next_position(self, cur,d):
         #calculate where condensin legs should go
+        # cur is current position, d is the direction: +/- 1
 
         if cur<self.N:
             nxt=np.mod(cur+d,self.N)
@@ -196,7 +198,7 @@ cdef class smcForkTranslocator(object):
                     nd1=-1
             elif cur>=self.fork1+self.N and cur<=self.fork2+self.N:
                 print "with forks at", self.fork1,self.fork2
-                raise Exception("cur is on unreplicated locus ",cur)
+                raise Exception("current index is on unreplicated locus ",cur)
             else:
                 next1= nxt
                 nd1=d

@@ -63,7 +63,8 @@ cdef class topologicalSmcForkTranslocator(object):
         self.n=2*fork_start
 
         self.M = numSmc
-        self.smc_per_chrom=numSmc
+        self.smc_per_chrom=round(self.M*self.N/(self.N+self.n))
+
         self.knockOffProb_OriToTer = kkOriToTer_kkTerToOri[0]
         self.knockOffProb_TerToOri = kkOriToTer_kkTerToOri[1] # rate of facilitated dissociation
         self.stallLeft = stallProbLeft
@@ -79,7 +80,7 @@ cdef class topologicalSmcForkTranslocator(object):
         cumem = cumem / float(cumem[len(cumem)-1])
         self.cumEmission = np.array(cumem, np.double)
 
-        self.SMCs1 = np.zeros(((self.M*2), 2), int) #arrays two times larger because final state has 2 times more smcs and monomers
+        self.SMCs1 = np.zeros(((self.M*2), 2), int) #arrays two times larger because final state in replicating sims has 2 times more smcs and monomers
         self.SMCs2 = np.zeros(((self.M*2), 2), int) #second index runs over strands in condensin leg
 
         self.dir1 = -1*np.ones(((self.M*2),2),int)
