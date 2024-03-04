@@ -64,7 +64,6 @@ cdef class topologicalSmcForkTranslocator(object):
 
         self.M = numSmc
         self.smc_per_chrom=numSmc
-        self.emission = emissionProb
         self.knockOffProb_OriToTer = kkOriToTer_kkTerToOri[0]
         self.knockOffProb_TerToOri = kkOriToTer_kkTerToOri[1] # rate of facilitated dissociation
         self.stallLeft = stallProbLeft
@@ -72,6 +71,10 @@ cdef class topologicalSmcForkTranslocator(object):
         self.falloff = deathProb
         self.pauseL = pauseProbL
         self.pauseR = pauseProbR
+
+        assert np.all(emissionProb[self.N+fork_start:2*self.N-fork_start]==0), "Non-zero loading probability on unreplicated region!"
+
+        self.emission = emissionProb
         cumem = np.cumsum(emissionProb)
         cumem = cumem / float(cumem[len(cumem)-1])
         self.cumEmission = np.array(cumem, np.double)
@@ -89,8 +92,6 @@ cdef class topologicalSmcForkTranslocator(object):
         self.stallFalloff = stallFalloffProb
         self.stallFork=stallFork
         self.kForkMoves=forkMoveRate
-
-        self.emission[self.N+fork_start:2*self.N-fork_start]=0. #don't load on unreplicated
         
         self.maxss = 100 #lower because need to redraw as polymer is replicated
         self.curss = self.maxss+1

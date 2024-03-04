@@ -52,7 +52,7 @@ cdef class smcForkTranslocator(object):
     def __init__(self, fork_start, emissionProb, deathProb, stallProbLeft, stallProbRight, pauseProbL, pauseProbR, stallFalloffProb, kkOriToTer_kkTerToOri_kBypass,  numSmc, forkMoveRate, stallFork):
      
         self.N = len(emissionProb)//2
-        
+
         self.replication_started=0
         self.fork1=fork_start
         self.fork2=self.N-1-fork_start
@@ -60,15 +60,19 @@ cdef class smcForkTranslocator(object):
 
         self.M = numSmc
         self.smc_per_chrom=numSmc
-        self.emission = emissionProb
         self.stallLeft = stallProbLeft
         self.stallRight = stallProbRight
         self.falloff = deathProb
         self.pauseL = pauseProbL
         self.pauseR = pauseProbR
+
+        assert np.all(emissionProb[self.N+fork_start:2*self.N-fork_start]==0), "Non-zero loading probability on unreplicated region!"
+
+        self.emission = emissionProb
         cumem = np.cumsum(emissionProb)
         cumem = cumem / float(cumem[len(cumem)-1])
         self.cumEmission = np.array(cumem, np.double)
+
         self.SMCs1 = np.zeros((self.M*2), int) #arrays two times larger because final state has 2 times more smcs and monomers
         self.SMCs2 = np.zeros((self.M*2), int)
         self.dir1 = -1*np.ones((self.M*2),int)
@@ -80,7 +84,6 @@ cdef class smcForkTranslocator(object):
         self.stallFork=stallFork
         self.kForkMoves=forkMoveRate
 
-        self.emission[self.N+fork_start:2*self.N-fork_start]=0. #don't load on unreplicated
         
         self.knockOffProb_OriToTer = kkOriToTer_kkTerToOri_kBypass[0]
         self.knockOffProb_TerToOri = kkOriToTer_kkTerToOri_kBypass[1] # rate of facilitated dissociation
