@@ -38,17 +38,15 @@ class simulationBondUpdater(object):
     This class precomputes simulation bonds for faster dynamic allocation. 
     """
 
-    def __init__(self,N,N_1D,monomer_size, smcTransObject, trunc, num_tethers, tie_forks):
+    def __init__(self,N,N_1D,monomer_size, smcTransObject,num_tethers, tie_forks):
         """
         :param smcTransObject: smc translocator object to work with
         :param N: number of monomers in the polymer
         :param N_1D: number of monomers in the 1D simulations
-        :param trunc: excluded volume trunc
         :param num_tethers: number of tethers to hold ori(s) in place
         Arrays store data from all sampled time points
         """
         self.smcObject = smcTransObject
-        self.trunc=trunc
         self.N=N
         self.N_1D=N_1D
         self.allBonds = []
@@ -180,7 +178,7 @@ class simulationBondUpdater(object):
 
         # Turn on excluded volume and increase spring constant for replicated monomers
         for i in range(pastFork[0],self.curFork[0]):
-            self.excl.setParticleParameters(i+N,[np.sqrt(self.trunc)])
+            self.excl.setParticleParameters(i+N,self.excl.getParticleParameters(i))
 
             if i>0: #avoid negative index; bond (N,0) dealt with in next for loop
                 #debugging test of bond indices
@@ -192,7 +190,7 @@ class simulationBondUpdater(object):
                 self.bondForce.setBondParameters(i+N,i+N-1,i+N, **self.replicatedParamDict)
 
         for i in range(self.curFork[1]+1,pastFork[1]+1):
-            self.excl.setParticleParameters(i+N,[np.sqrt(self.trunc)])
+            self.excl.setParticleParameters(i+N,self.excl.getParticleParameters(i))
             #debugging test of bond indices
             p1,p2,l,k=self.bondForce.getBondParameters(i+1)
             p1,p2=sorted([p1,p2])
@@ -331,7 +329,7 @@ def run_simulation(monomer_size, monomer_wig,N,N_1D,steps_per_sample, radius, he
         SMCTran.start_replication() #start stalling at the fork, start moving fork
 
         #Now feed bond generators to BondUpdater 
-        BondUpdater = simulationBondUpdater(N,N_1D,monomer_size,SMCTran, trunc, num_tethers, tie_forks)
+        BondUpdater = simulationBondUpdater(N,N_1D,monomer_size,SMCTran, num_tethers, tie_forks)
 
         # simulation parameters are defined below 
         a = Simulation(
