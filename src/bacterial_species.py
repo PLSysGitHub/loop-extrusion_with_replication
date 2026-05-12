@@ -105,6 +105,14 @@ class cell:
         new_ori=list([0.,0.,z2])
 
         return old_ori, new_ori
+    
+    def inferred_time(self, R):
+        inferred_t=R/self.rateReplication #in minutes
+        return inferred_t
+
+    def R_to_height(self, R):
+        t=self.inferred_time(R)
+        return self.t_to_height(t)
 
 
 #E coli
