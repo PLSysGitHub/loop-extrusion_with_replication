@@ -166,7 +166,7 @@ def run_simulation(smcTrajFolder, bacterium, monomer_wig,\
         steps_per_sample, smcBondDist, smcBondWiggleDist, save_folder,\
         saveEveryConfigs, GPU_choice = 0, F_z=0., add_tether=False,\
         col_rate=0.1, trunc=0.5, top_monomer=0, no_confinement=False,infinite_tube=False,\
-        dt_1D=1/60, mass=100):
+        dt_1D=1/60, mass=100, platform="cuda"):
     """
     Run simulations of chromosome in flat confinement with loop extrusion.
 
@@ -220,7 +220,7 @@ def run_simulation(smcTrajFolder, bacterium, monomer_wig,\
 
         # simulation parameters are defined below 
         a = Simulation(
-                platform="cuda",
+                platform=platform,
                 integrator="variableLangevin", 
                 error_tol=0.001,
                 GPU = "{}".format(GPU_choice), 

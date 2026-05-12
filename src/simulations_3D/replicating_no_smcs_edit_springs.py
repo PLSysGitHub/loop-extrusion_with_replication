@@ -235,11 +235,14 @@ class simulationBondUpdater(object):
         #update tethers...
         if self.num_tethers==2:
             old_ori, new_ori=self.bacterium.t_to_z_oris(self.current_time)
-            self.tether.setParticleParameters(0,0,old_ori)
-            self.tether.setParticleParameters(1,1,new_ori)
+            p0, params0 = self.tether.getParticleParameters(0)
+            p1, params1 = self.tether.getParticleParameters(1)
+            self.tether.setParticleParameters(0,p0,old_ori)
+            self.tether.setParticleParameters(1,p1,new_ori)
         elif self.num_tethers==1:
             old_ori, new_ori=self.bacterium.t_to_z_oris(self.current_time)
-            self.tether.setParticleParameters(0,0,old_ori)
+            p0, params0 = self.tether.getParticleParameters(0)
+            self.tether.setParticleParameters(0,p0,old_ori)
 
         if self.num_tethers>0:
             self.tether.updateParametersInContext(context)
@@ -305,7 +308,7 @@ def run_simulation(bacterium, monomer_wig, smcBondDist, smcBondWiggleDist, \
         col_rate=0.1, trunc=0.5, top_monomer=0, num_tethers=0,\
         no_confinement=False,infinite_tube=False, mass=100,\
         decay_l_behind=0, factor_behind=1, decay_l_ahead=0,\
-        factor_ahead=1, compression_t=5):
+        factor_ahead=1, compression_t=5, platform="cuda"):
     """
     This function initiates the bacterial chromosome simulation.
 
@@ -382,7 +385,7 @@ def run_simulation(bacterium, monomer_wig, smcBondDist, smcBondWiggleDist, \
 
         # simulation parameters are defined below 
         a = Simulation(
-                platform="cuda",
+                platform=platform,
                 integrator="variableLangevin", 
                 error_tol=0.001,
                 GPU = "{}".format(GPU_choice), 

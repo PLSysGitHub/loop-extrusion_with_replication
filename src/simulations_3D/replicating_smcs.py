@@ -33,7 +33,7 @@ def num_time_steps_trajectories(folder_name):
     with h5py.File(filtered_files[0], 'r') as f:
         ts=f['ts'][:]
 
-    nt=ts.size
+    nt = ts.size
     nsims=len(filtered_files)
 
     return nt, nsims, filtered_files
@@ -214,11 +214,14 @@ class simulationBondUpdater(object):
         #update tethers...
         if self.num_tethers==2:
             old_ori, new_ori=self.bacterium.t_to_z_oris(self.current_time)
-            self.tether.setParticleParameters(0,0,old_ori)
-            self.tether.setParticleParameters(1,1,new_ori)
+            p0, params0 = self.tether.getParticleParameters(0)
+            p1, params1 = self.tether.getParticleParameters(1)
+            self.tether.setParticleParameters(0,p0,old_ori)
+            self.tether.setParticleParameters(1,p1,new_ori)
         elif self.num_tethers==1:
             old_ori, new_ori=self.bacterium.t_to_z_oris(self.current_time)
-            self.tether.setParticleParameters(0,0,old_ori)
+            p0, params0 = self.tether.getParticleParameters(0)
+            self.tether.setParticleParameters(0,p0,old_ori)
 
         if self.num_tethers>0:
             self.tether.updateParametersInContext(context)
@@ -272,7 +275,7 @@ def run_simulation(smcTrajFolder, bacterium, monomer_wig,\
         steps_per_sample, smcBondDist, smcBondWiggleDist, save_folder,\
         saveEveryConfigs, GPU_choice = 0, F_z=0., mass=100,\
         col_rate=0.1, trunc=0.5, top_monomer=0, num_tethers=0,\
-        dt_1D=1/60):
+        dt_1D=1/60, platform="cuda"):
     """
     Run simulations of chromosome in flat confinement with loop extrusion.
 
@@ -324,7 +327,7 @@ def run_simulation(smcTrajFolder, bacterium, monomer_wig,\
 
         # simulation parameters are defined below 
         a = Simulation(
-                platform="cuda",
+                platform=platform,
                 integrator="variableLangevin", 
                 error_tol=0.001,
                 GPU = "{}".format(GPU_choice), 

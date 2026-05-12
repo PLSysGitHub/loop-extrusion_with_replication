@@ -168,11 +168,14 @@ class simulationBondUpdater(object):
         #update tethers...
         if self.num_tethers==2:
             old_ori, new_ori=self.bacterium.t_to_z_oris(self.current_time)
-            self.tether.setParticleParameters(0,0,old_ori)
-            self.tether.setParticleParameters(1,1,new_ori)
+            p0, params0 = self.tether.getParticleParameters(0)
+            p1, params1 = self.tether.getParticleParameters(1)
+            self.tether.setParticleParameters(0,p0,old_ori)
+            self.tether.setParticleParameters(1,p1,new_ori)
         elif self.num_tethers==1:
             old_ori, new_ori=self.bacterium.t_to_z_oris(self.current_time)
-            self.tether.setParticleParameters(0,0,old_ori)
+            p0, params0 = self.tether.getParticleParameters(0)
+            self.tether.setParticleParameters(0,p0,old_ori)
 
         if self.num_tethers>0:
             self.tether.updateParametersInContext(context)
@@ -228,7 +231,7 @@ def run_simulation(bacterium, monomer_wig, smcBondDist, smcBondWiggleDist, \
         steps_per_sample, save_folder, smcSteps, numSims,\
         delta_t_sec, saveEveryConfigs,GPU_choice = 0, F_z=0.,\
         col_rate=0.1, trunc=0.5, top_monomer=0, num_tethers=0,\
-        no_confinement=False,infinite_tube=False, mass=100):
+        no_confinement=False,infinite_tube=False, mass=100, platform="cuda"):
     """
     Run a simulation of a polymer with a replicating fork.
 
@@ -277,7 +280,7 @@ def run_simulation(bacterium, monomer_wig, smcBondDist, smcBondWiggleDist, \
 
         # simulation parameters are defined below 
         a = Simulation(
-                platform="cuda",
+                platform=platform,
                 integrator="variableLangevin", 
                 error_tol=0.001,
                 GPU = "{}".format(GPU_choice), 

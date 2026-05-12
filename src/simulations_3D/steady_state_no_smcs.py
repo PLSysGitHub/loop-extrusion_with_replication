@@ -21,7 +21,7 @@ from ..bacterial_species import cell
 def run_simulation(bacterium, monomer_wig,\
         steps_per_sample, save_folder, smcSteps, numSims,\
         saveEveryConfigs, GPU_choice = 0, F_z=0., add_tether=False,mass=100,\
-        col_rate=0.1, trunc=0.5, top_monomer=0, no_confinement=False,infinite_tube=False):
+        col_rate=0.1, trunc=0.5, top_monomer=0, no_confinement=False,infinite_tube=False, platform="cuda"):
     """
     Run simulations of chromosome in flat confinement with loop extrusion.
 
@@ -64,7 +64,7 @@ def run_simulation(bacterium, monomer_wig,\
 
         # simulation parameters are defined below 
         a = Simulation(
-                platform="cuda",
+                platform=platform,
                 integrator="variableLangevin", 
                 error_tol=0.001,
                 GPU = "{}".format(GPU_choice), 

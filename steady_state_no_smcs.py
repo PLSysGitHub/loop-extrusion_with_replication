@@ -5,7 +5,8 @@ import os, argparse
 
 def create_parser():
     parser = argparse.ArgumentParser(description='Steady state simulations of E coli chromosome, unreplicating')
-    parser.add_argument('GPU', type=int, nargs=1, help="Number for GPU to use")
+    parser.add_argument('GPU', type=int, nargs='?', default=0, help="Number for GPU to use (not needed with --cpu)")
+    parser.add_argument('--cpu', action='store_true', help="Run on CPU instead of CUDA (for testing without GPU)")
     parser.add_argument('-N', '--num_monomers', default=1620, type=int, help="Number of monomers in the polymer")
     parser.add_argument('-b', '--monomer_size', default=50,type=float, help="Monomer size in nm")
     parser.add_argument('--monomer_wiggle',default=30,type=float, help="Monomer wiggle length in nm")
@@ -33,7 +34,7 @@ def out_folder_name(bacterium, args_in):
     else:
         parent_folder="Results_3D/Steady_state/"
 
-    return os.path.join(parent_folder, f"GPU_{args_in.GPU[0]}_No_smcs_N_{args_in.num_monomers}_r_{bacterium.radius}_L_{bacterium.L_0}_num_smcs_0_loop_size_0_colrate_{args_in.col_rate}_trunc_{args_in.trunc}_ter_size_800_ter_strength_100.0_mass_{args_in.mass}")
+    return os.path.join(parent_folder, f"GPU_{args_in.GPU}_No_smcs_N_{args_in.num_monomers}_r_{bacterium.radius}_L_{bacterium.L_0}_num_smcs_0_loop_size_0_colrate_{args_in.col_rate}_trunc_{args_in.trunc}_ter_size_800_ter_strength_100.0_mass_{args_in.mass}")
 
 
 def main():
@@ -41,7 +42,8 @@ def main():
     args = parser.parse_args()
 
     #Basic set up; bacterium and important parameters
-    GPU=args.GPU[0]
+    GPU=args.GPU
+    platform = "CPU" if args.cpu else "cuda"
     N=args.num_monomers
     monomer_size=args.monomer_size #nm; in this case for 1 kb
     bacterium=c_crescentus(N,monomer_size,0)
@@ -67,7 +69,8 @@ def main():
     delta_t_3D=60 #delta_t_3D/delta_t_sec is how many seconds there are between 3D samples
     rel_bond_wiggle=args.monomer_wiggle/monomer_size #how much the bonds can flex
 
-    run_simulation(bacterium, rel_bond_wiggle, args.steps_per_sample, save_folder, num_steps_1D, num_sims, delta_t_3D, GPU_choice=GPU, F_z=args.force, col_rate=args.col_rate, trunc=args.trunc, top_monomer=args.top_monomer, infinite_tube=args.infinite_tube, no_confinement=args.no_confinement, add_tether=args.add_tether, mass=args.mass)
+    run_simulation(bacterium, rel_bond_wiggle, args.steps_per_sample, save_folder, num_steps_1D, num_sims, delta_t_3D, GPU_choice=GPU, F_z=args.force, col_rate=args.col_rate, trunc=args.trunc, top_monomer=args.top_monomer, infinite_tube=args.infinite_tube, no_confinement=args.no_confinement, add_tether=args.add_tether, mass=args.mass,
+        platform=platform)
 
 main()
 

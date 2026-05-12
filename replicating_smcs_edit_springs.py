@@ -5,7 +5,8 @@ import os, argparse
 def create_parser():
     parser = argparse.ArgumentParser(description='replicating simulations of bacterial chromosome,\
                                      with SMCs and edited spring lengths around replication forks')
-    parser.add_argument('GPU', type=int, nargs=1, help="Number for GPU to use")
+    parser.add_argument('GPU', type=int, nargs='?', default=0, help="Number for GPU to use (not needed with --cpu)")
+    parser.add_argument('--cpu', action='store_true', help="Run on CPU instead of CUDA (for testing without GPU)")
     parser.add_argument('-l', '--loop_size', default=1200,type=float, help="Sets the lifetime, loop-size in kb.")
     parser.add_argument('-N', '--num_monomers', default=1620, type=int, help="Number of monomers in the polymer")
     parser.add_argument('-b', '--monomer_size', default=50,type=float, help="Monomer size in nm")
@@ -32,7 +33,7 @@ def create_parser():
     return parser
 
 def out_folder_name(bacterium, args_in, parent_folder="Results_3D/Replicating/"):
-    p=os.path.join(parent_folder, f"GPU_{args_in.GPU[0]}_N_{args_in.num_monomers}_sph_cap_sps_{args_in.steps_per_sample}_L_{bacterium.L_0}_M_{args_in.num_smcs}_l_{args_in.loop_size}_cr_{args_in.col_rate}_trunc_{args_in.trunc}_nt_{args_in.num_tethers}_dlb_{args_in.d_l_behind}_fb_{args_in.f_behind}_dla_{args_in.d_l_ahead}_fa_{args_in.f_ahead}_ct_{args_in.compression_t}_b_{args_in.monomer_size}_w_{args_in.monomer_wiggle}_m_{args_in.mass}_of_{args_in.ori_frac}_g1D_{args_in.skip_gens_1D}")
+    p=os.path.join(parent_folder, f"GPU_{args_in.GPU}_N_{args_in.num_monomers}_sph_cap_sps_{args_in.steps_per_sample}_L_{bacterium.L_0}_M_{args_in.num_smcs}_l_{args_in.loop_size}_cr_{args_in.col_rate}_trunc_{args_in.trunc}_nt_{args_in.num_tethers}_dlb_{args_in.d_l_behind}_fb_{args_in.f_behind}_dla_{args_in.d_l_ahead}_fa_{args_in.f_ahead}_ct_{args_in.compression_t}_b_{args_in.monomer_size}_w_{args_in.monomer_wiggle}_m_{args_in.mass}_of_{args_in.ori_frac}_g1D_{args_in.skip_gens_1D}")
 
     if args_in.fork_bypass:
         p=p+"_fork_bypass"
@@ -52,7 +53,8 @@ def main():
         from src.simulations_1D.replicating_bacterial_bypass import run_replicating_1D_sims
 
     #Basic set up; bacterium and important parameters
-    GPU=args.GPU[0]
+    GPU=args.GPU
+    platform = "CPU" if args.cpu else "cuda"
     N=args.num_monomers
     loop_size=args.loop_size
     monomer_size=args.monomer_size #nm; in this case for 1 kb
@@ -82,7 +84,8 @@ def main():
                     saveEveryConfigs, GPU_choice = GPU, F_z=args.force,mass=args.mass,\
                     col_rate=args.col_rate, trunc=args.trunc, top_monomer=args.top_monomer,\
                     num_tethers=args.num_tethers, decay_l_behind=args.d_l_behind, factor_behind=args.f_behind,\
-                    decay_l_ahead=args.d_l_ahead, factor_ahead=args.f_ahead, compression_t=args.compression_t, dt_1D=delta_t_sec/60)
+                    decay_l_ahead=args.d_l_ahead, factor_ahead=args.f_ahead, compression_t=args.compression_t, dt_1D=delta_t_sec/60,
+                    platform=platform)
 
 main()
 
