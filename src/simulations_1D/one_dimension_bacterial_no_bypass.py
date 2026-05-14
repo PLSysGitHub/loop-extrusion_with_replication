@@ -28,7 +28,7 @@ def save_to_h5(l_sites, r_sites, ts, filename='data.h5'):
         f.create_dataset('ts', data=ts)
 
 def out_dir_name_1D(bacterium, M, results_dir="Results_1D"):
-    return os.path.join(results_dir, f"Unreplicating_{bacterium.name}_N_{bacterium.N}_M_{M}_loopsize_{bacterium.loopSize}_ter_size_{bacterium.terLength}_ter_strength_{bacterium.terStrength}")
+    return os.path.join(results_dir, f"Unreplicating_{bacterium.name}_N_{bacterium.N}_M_{M}_loopsize_{bacterium.loopSize:.4g}_ter_size_{bacterium.terLength}_ter_strength_{bacterium.terStrength}")
 
 def run_1D_sims(bacterium, num_smcs, ter_size, burn_in_time_min, simulation_time_min, num_sims, delta_t_sec=1):
     delta_t=delta_t_sec/60 #all rates are in minutes

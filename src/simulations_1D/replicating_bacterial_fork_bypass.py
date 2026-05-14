@@ -29,7 +29,7 @@ def save_to_h5(l_sites, r_sites, forks, ts, filename='data.h5'):
         f.create_dataset('ts', data=ts)
 
 def out_dir_name_1D(bacterium, M, GPU, results_dir="Results_1D"):
-    return os.path.join(results_dir, f"Replicating_fork_bypass_{bacterium.name}_N_{bacterium.N}_M_{M}_loopsize_{bacterium.loopSize}_ter_size_{bacterium.terLength}_ter_strength_{bacterium.terStrength}_GPU_{GPU}")
+    return os.path.join(results_dir, f"Replicating_fork_bypass_{bacterium.name}_N_{bacterium.N}_M_{M}_loopsize_{bacterium.loopSize:.4g}_ter_size_{bacterium.terLength}_ter_strength_{bacterium.terStrength}_GPU_{GPU}")
 
 def pick_initial_sites(l_sites, r_sites, M, L):
     assert len(l_sites)==len(r_sites), "Different number of left and right sites"

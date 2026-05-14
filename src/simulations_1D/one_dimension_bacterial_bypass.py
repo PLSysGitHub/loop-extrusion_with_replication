@@ -64,7 +64,7 @@ def pick_initial_sites(l_sites, r_sites, M, L):
     return picked_l, picked_r
 
 def out_dir_name_1D(bacterium, M, GPU, results_dir="Results_1D"):
-    return os.path.join(results_dir, f"GPU_{GPU}_Unreplicating_{bacterium.name}_N_{bacterium.N}_M_{M}_loopsize_{bacterium.loopSize}_ter_size_{bacterium.terLength}_ter_strength_{bacterium.terStrength}")
+    return os.path.join(results_dir, f"GPU_{GPU}_Unreplicating_{bacterium.name}_N_{bacterium.N}_M_{M}_loopsize_{bacterium.loopSize:.4g}_ter_size_{bacterium.terLength}_ter_strength_{bacterium.terStrength}")
 
 def run_1D_sims(bacterium, num_smcs, burn_in_time_min, simulation_time_min, num_sims, delta_t_sec=1, GPU=0):
     delta_t=delta_t_sec/60 #units are all in minutes
